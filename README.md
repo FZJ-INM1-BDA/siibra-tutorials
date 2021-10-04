@@ -3,7 +3,7 @@
 # siibra-tutorials
 
 Some tutorial notebooks for programmatic use of the [EBRAINS human brain atlas](https://ebrains.eu/service/human-brain-atlas) with [siibra-python](https://github.com/FZJ-INM1-BDA/siibra-python).
-Since siibra-python is under active developments, these tutorials are regularly updated and typically point to specifice development snapshots of the library.
+Since siibra-python is under active development, these tutorials are regularly updated and typically point to specifice development snapshots of the library.
 
 Tutorial | About | Link
 :---: | --- | ---
