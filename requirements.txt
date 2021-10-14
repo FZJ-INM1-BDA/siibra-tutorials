@@ -1,2 +1,2 @@
-git+git://github.com/FZJ-INM1-BDA/siibra-python@v0.2a2#egg=siibra
+git+git://github.com/FZJ-INM1-BDA/siibra-python@v0.3a2#egg=siibra
 siibra-jugex==0.1
