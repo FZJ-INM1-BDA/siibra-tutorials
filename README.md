@@ -11,3 +11,4 @@ Tutorial | About | Link
 2 | Retrieving multimodal data features for brain regions | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/FZJ-INM1-BDA/siibra-tutorials/HEAD?filepath=02-DataFeatures.ipynb)
 3 | Probabilistic assignment of regions to coordinates | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/FZJ-INM1-BDA/siibra-tutorials/HEAD?filepath=03-ProbabilisticAssignment.ipynb)
 4 | Differential Gene Expression Analysis | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/FZJ-INM1-BDA/siibra-tutorials/HEAD?filepath=04-DifferentialGeneExpressions.ipynb)
+4 | iambrain Workshop 2022 | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/FZJ-INM1-BDA/siibra-tutorials/HEAD?filepath=iambrain-workshop-2022.ipynb)
