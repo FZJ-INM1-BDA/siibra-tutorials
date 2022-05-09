@@ -1,4 +1,5 @@
 siibra==0.3a17
-siibra-jugex==0.2
+# siibra-jugex==0.2
+git+https://github.com/FZJ-INM1-BDA/siibra-jugex
 matplotlib
 nilearn
