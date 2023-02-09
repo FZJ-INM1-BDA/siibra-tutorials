@@ -1,4 +1,3 @@
-siibra==0.3a25
-siibra-jugex==0.2
+siibra==0.4a33
 matplotlib
 nilearn
