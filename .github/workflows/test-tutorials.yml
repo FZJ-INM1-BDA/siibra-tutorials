@@ -48,4 +48,4 @@ jobs:
           pip install -r ../siibra-python/requirements.txt
       
       - name: Test tutorial notebooks with nbmake
-        run: pytest --nbmake --nbmake-timeout=1200 ./siibra-tutorials-${{ github.run_id }}-${{ github.run_number }}
+        run: pytest --nbmake --nbmake-timeout=1200 ./
