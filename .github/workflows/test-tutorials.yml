@@ -22,6 +22,15 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -U .
+          pip install -r requirements.txt
+          pip install siibra_jugex
+          pip install matplotlib
+          pip install pytest nbmake
+
       - name: checkout siibra-python
         uses: actions/checkout@v4
         with:
@@ -33,15 +42,6 @@ jobs:
       
       - name: move siibra-python one up from workspace
         run: mv siibra-python-${{ github.run_id }}-${{ github.run_number }} ../siibra-python
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install -U .
-          pip install -r requirements.txt
-          pip install siibra_jugex
-          pip install matplotlib
-          pip install pytest nbmake
       
       - name: Install siibra-python testing requirements
         run: |
