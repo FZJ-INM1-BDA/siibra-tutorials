@@ -1,0 +1,52 @@
+name: '[Test] Test siibra-tutorials'
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+    inputs:
+      siibra_python_branch:
+        description: 'siibra-python branch to use'
+        required: false
+        default: 'main'
+        type: string
+
+
+jobs:
+  test_tutorials:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: checkout siibra-python
+        uses: actions/checkout@v4
+        with:
+          repository: FZJ-INM1-BDA/siibra-python
+          path:  siibra-python-${{ github.run_id }}-${{ github.run_number }}
+          fetch-depth: 1
+          clean: True
+          ref: ${{ inputs.siibra_python_branch }}
+      
+      - name: move siibra-python one up from workspace
+        run: mv siibra-python-${{ github.run_id }}-${{ github.run_number }} ../siibra-python
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -U .
+          pip install -r requirements.txt
+          pip install siibra_jugex
+          pip install matplotlib
+          pip install pytest nbmake
+      
+      - name: Install siibra-python testing requirements
+        run: |
+          pip install -r ../siibra-python/requirements-test.txt
+          pip install -r ../siibra-python/requirements.txt
+      
+      - name: Test tutorial notebooks with nbmake
+        run: pytest --nbmake --nbmake-timeout=1200 ./siibra-tutorials-${{ github.run_id }}-${{ github.run_number }}
