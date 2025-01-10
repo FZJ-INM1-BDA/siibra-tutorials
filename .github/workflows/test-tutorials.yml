@@ -34,6 +34,7 @@ jobs:
           pip install git+https://github.com/FZJ-INM1-BDA/siibra-python.git@${{ steps.set_branch.outputs.value}}
           pip install siibra_jugex
           pip install matplotlib
+          pip install seaborn
           pip install pytest nbmake
 
       - name: Test tutorial notebooks with nbmake
