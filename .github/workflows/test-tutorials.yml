@@ -22,10 +22,16 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Set siibra-python branch
+        id: set_branch
+        run: |
+          INPUT=${{ github.event.inputs.siibra_python_branch }}
+          echo "::set-output name=value::${INPUT:-"main"}"
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install git+https://github.com/FZJ-INM1-BDA/siibra-python.git@${{ inputs.siibra_python_branch }}
+          pip install git+https://github.com/FZJ-INM1-BDA/siibra-python.git@${{ steps.set_branch.outputs.value}}
           pip install siibra_jugex
           pip install matplotlib
           pip install pytest nbmake
