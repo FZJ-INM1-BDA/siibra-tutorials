@@ -25,27 +25,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install git+https://github.com/FZJ-INM1-BDA/siibra-python.git@${{ inputs.siibra_python_branch }}
           pip install siibra_jugex
           pip install matplotlib
           pip install pytest nbmake
 
-      - name: checkout siibra-python
-        uses: actions/checkout@v4
-        with:
-          repository: FZJ-INM1-BDA/siibra-python
-          path:  siibra-python-${{ github.run_id }}-${{ github.run_number }}
-          fetch-depth: 1
-          clean: True
-          ref: ${{ inputs.siibra_python_branch }}
-      
-      - name: move siibra-python one up from workspace
-        run: mv siibra-python-${{ github.run_id }}-${{ github.run_number }} ../siibra-python
-      
-      - name: Install siibra-python testing requirements
-        run: |
-          pip install -r ../siibra-python/requirements-test.txt
-          pip install -r ../siibra-python/requirements.txt
-      
       - name: Test tutorial notebooks with nbmake
         run: pytest --nbmake --nbmake-timeout=1200 ./
