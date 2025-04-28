@@ -1,5 +1,6 @@
 nibabel=>4.0.0
 siibra>=1.0.1-alpha.2
+pandas>=2.0.0
 siibra-jugex==1.22
 matplotlib
 nilearn
