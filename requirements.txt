@@ -1,5 +1,4 @@
 siibra>=1.0.1-alpha.10
 gradio_client>=1.13.1
-opencv-python-headless
 torch
 celldetection
