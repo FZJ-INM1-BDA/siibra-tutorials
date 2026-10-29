@@ -1,7 +1,7 @@
 name: '[Test] Test siibra-tutorials'
 
-# Pushes, pull requests and the weekly run test the notebooks the way users run
-# them: with requirements.txt, i.e. the latest siibra release. siibra-python's
+# Pushes, pull requests and the weekly run test the notebooks the way Binder users run
+# them: with runtime.txt and requirements.txt, i.e. the latest siibra release. siibra-python's
 # own cron-siibra-tutorials workflow covers siibra-python's main branch; to
 # test another branch here, start this workflow manually and name it.
 on:
@@ -30,6 +30,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-clean:
+    # Notebooks are stored without outputs and environment metadata (see .github/scripts/clean_notebooks.py).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check notebooks are stripped of outputs and metadata
+        run: python3 .github/scripts/clean_notebooks.py --check
+
   list-notebooks:
     # Branches in this repository are already tested by their push run, so the
     # pull_request run is only needed for pull requests from forks.
@@ -66,13 +77,22 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Read the Python version Binder uses
+        id: runtime
+        shell: bash
+        run: |
+          # runtime.txt ("python-3.X") sets the Python version on mybinder.org; test with the same one.
+          version=$(sed -n 's/^python-//p' runtime.txt)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
-          python-version: "3.14"
+          python-version: ${{ steps.runtime.outputs.version }}
           check-latest: true
           cache: pip
           cache-dependency-path: |
+            runtime.txt
             requirements.txt
             .github/requirements-tests.txt
 
