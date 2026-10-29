@@ -1,0 +1,11 @@
+# Optional: `pip install pre-commit && pre-commit install` to strip outputs and
+# environment-specific metadata from notebooks automatically on every commit.
+# CI runs the same check (.github/scripts/clean_notebooks.py --check).
+repos:
+  - repo: local
+    hooks:
+      - id: clean-notebooks
+        name: strip notebook outputs and metadata
+        entry: python .github/scripts/clean_notebooks.py
+        language: system
+        files: \.ipynb$
