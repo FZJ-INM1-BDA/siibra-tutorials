@@ -2,3 +2,4 @@
 # The notebooks' own dependencies are in /requirements.txt, as Binder users get them.
 nbmake==1.5.5
 pytest==9.1.1
+pyflakes==4.1.0

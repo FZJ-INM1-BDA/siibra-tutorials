@@ -31,7 +31,8 @@ concurrency:
 
 jobs:
   check-clean:
-    # Notebooks are stored without outputs and environment metadata (see .github/scripts/clean_notebooks.py).
+    # Fast checks that need neither siibra nor its data: notebooks are stored without outputs
+    # and environment metadata, and no cell uses a name that no earlier cell defines.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -40,6 +41,11 @@ jobs:
 
       - name: Check notebooks are stripped of outputs and metadata
         run: python3 .github/scripts/clean_notebooks.py --check
+
+      - name: Check notebooks for names used before they are defined
+        run: |
+          python3 -m pip install "$(grep '^pyflakes==' .github/requirements-tests.txt)"
+          python3 .github/scripts/check_notebook_names.py
 
   list-notebooks:
     # Branches in this repository are already tested by their push run, so the
