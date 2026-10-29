@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Files written by the notebooks when run from the repository
+/data/
+/results/
+/site/
+jugex_*.json
+/test_fmri.nii.gz
+/fmri_conf_test.json
+/workshops/fmri_conf_test.json
