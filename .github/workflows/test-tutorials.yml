@@ -1,40 +1,104 @@
 name: '[Test] Test siibra-tutorials'
 
+# Pushes, pull requests and the weekly run test the notebooks the way users run
+# them: with requirements.txt, i.e. the latest siibra release. siibra-python's
+# own cron-siibra-tutorials workflow covers siibra-python's main branch; to
+# test another branch here, start this workflow manually and name it.
 on:
   push:
     branches: ["**"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "0 6 * * 1"  # Mondays, 06:00 UTC
   workflow_dispatch:
     inputs:
       siibra_python_branch:
-        description: 'siibra-python branch to use'
+        description: 'siibra-python branch to test with (empty: the release from requirements.txt)'
         required: false
-        default: 'main'
+        default: ''
         type: string
 
+permissions:
+  contents: read
+
+concurrency:
+  # A newer run replaces an older one only if both have the same trigger, branch
+  # or PR, and siibra-python branch: two manual runs testing different branches,
+  # or a manual run and a push to main, no longer cancel each other.
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}-${{ inputs.siibra_python_branch }}
+  cancel-in-progress: true
 
 jobs:
-  test_tutorials:
+  list-notebooks:
+    # Branches in this repository are already tested by their push run, so the
+    # pull_request run is only needed for pull requests from forks.
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository }}
     runs-on: ubuntu-latest
+    outputs:
+      notebooks: ${{ steps.find.outputs.notebooks }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          python-version: '3.10'
+          persist-credentials: false
 
-      - name: Set siibra-python branch
-        id: set_branch
+      - name: Find notebooks
+        id: find
+        shell: bash
         run: |
-          INPUT=${{ github.event.inputs.siibra_python_branch }}
-          echo "::set-output name=value::${INPUT:-"main"}"
+          notebooks=$(git ls-files '*.ipynb' | python3 -c 'import json, sys; print(json.dumps(sys.stdin.read().splitlines()))')
+          echo "$notebooks"
+          echo "notebooks=$notebooks" >> "$GITHUB_OUTPUT"
+
+  test-notebook:
+    # One job per notebook: each runs on its own runner with its own siibra
+    # cache, so nothing is shared between notebooks running in parallel.
+    needs: list-notebooks
+    name: ${{ matrix.notebook }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        notebook: ${{ fromJSON(needs.list-notebooks.outputs.notebooks) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+          check-latest: true
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            .github/requirements-tests.txt
 
       - name: Install dependencies
+        shell: bash
+        env:
+          SIIBRA_BRANCH: ${{ inputs.siibra_python_branch }}
         run: |
+          extra=()
+          if [[ -n "$SIIBRA_BRANCH" ]]; then
+            # pip passes the branch to git as a command-line argument, so it must not
+            # start with "-" (git options). Git branch names never start with "-" or ".".
+            if [[ ! "$SIIBRA_BRANCH" =~ ^[A-Za-z0-9_][A-Za-z0-9._/-]*$ ]]; then
+              echo "::error::Invalid siibra-python branch name: $SIIBRA_BRANCH"
+              exit 1
+            fi
+            extra=("siibra @ git+https://github.com/FZJ-INM1-BDA/siibra-python.git@${SIIBRA_BRANCH}")
+          fi
           python -m pip install --upgrade pip
-          pip install git+https://github.com/FZJ-INM1-BDA/siibra-python.git@${{ steps.set_branch.outputs.value}}
-          pip install siibra_jugex
-          pip install matplotlib
-          pip install pytest nbmake
+          python -m pip install \
+            -r requirements.txt \
+            -r .github/requirements-tests.txt \
+            "${extra[@]}"
 
-      - name: Test tutorial notebooks with nbmake
-        run: pytest --nbmake --nbmake-timeout=1200 ./
+      - name: Run notebook
+        shell: bash
+        env:
+          NOTEBOOK: ${{ matrix.notebook }}
+        run: python -m pytest --nbmake --nbmake-timeout=1200 "./$NOTEBOOK"

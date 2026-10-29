@@ -1,0 +1,4 @@
+# Tools for testing the notebooks in CI (kept up to date by Dependabot).
+# The notebooks' own dependencies are in /requirements.txt, as Binder users get them.
+nbmake==1.5.5
+pytest==9.1.1
